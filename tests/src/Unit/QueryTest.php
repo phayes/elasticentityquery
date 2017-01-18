@@ -200,6 +200,22 @@ class QueryTest extends UnitTestCase {
     $this->assertEquals(2, count($result));
   }
 
+  function testConditionGroup() {
+    $query = $this->newQuery('AND');
+
+    $query->condition('tags', 'dolore');
+    
+    $group = $query->orConditionGroup()
+      ->condition('eyeColor', 'green')
+      ->condition('eyeColor', 'blue');
+    
+    $result = $query->condition($group)->execute();
+
+    $this->assertEquals(2, count($result));
+    $this->assertContains('29d3077e-0378-4949-a201-b36574e6c35c', $result);
+    $this->assertContains('1578747e-248a-4351-ae6c-aa273d8f297e', $result);
+  }
+
   static function tearDownAfterClass() {
     //$client = ClientBuilder::create()->build();
     //$client->indices()->delete(['index' => 'elasticentityquery_test']);

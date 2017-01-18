@@ -148,67 +148,73 @@ class Query extends QueryBase implements QueryInterface {
       $field = $subcondition['field'];
       $value = $subcondition['value'];
 
-      if ($operator == "=" && $conjunction == "AND") {
+      if (is_object($field) && $conjunction == "AND") {
+        $bool['must'][] = ['bool' => $this->getElasticFilterItem($field)];
+      }
+      elseif (is_object($field) && $conjunction == "AND") {
+        $bool['should'][] = ['bool' => $this->getElasticFilterItem($field)];
+      }
+      elseif ($operator == "=" && $conjunction == "AND") {
         $bool['must'][] = ['term' => [$field => $value]];
       }
-      if ($operator == "=" && $conjunction == "OR") {
+      elseif ($operator == "=" && $conjunction == "OR") {
         $bool['should'][] = ['term' => [$field => $value]];
       }
-      if (($operator == "<>" || $operator == "!=") && $conjunction == "AND") {
+      elseif (($operator == "<>" || $operator == "!=") && $conjunction == "AND") {
         $bool['must_not'][] = ['term' => [$field => $value]];
       }
-      if (($operator == "<>" || $operator == "!=") && $conjunction == "OR") {
+      elseif (($operator == "<>" || $operator == "!=") && $conjunction == "OR") {
         $bool['should'][] = ['bool' => ['must_not' => ['term' => [$field => $value]]]];
       }
-      if ($operator == "IN" && $conjunction == "AND") {
+      elseif ($operator == "IN" && $conjunction == "AND") {
         $bool['must'][] = ['terms' => [$field => $value]];
       }
-      if ($operator == "IN" && $conjunction == "OR") {
+      elseif ($operator == "IN" && $conjunction == "OR") {
         $bool['should'][] = ['terms' => [$field => $value]];
       }
-      if ($operator == "NOT IN" && $conjunction == "AND") {
+      elseif ($operator == "NOT IN" && $conjunction == "AND") {
         $bool['must_not'][] = ['terms' => [$field => $value]];
       }
-      if ($operator == "NOT IN" && $conjunction == "OR") {
+      elseif ($operator == "NOT IN" && $conjunction == "OR") {
         $bool['should'][] = ['bool' => ['must_not' => ['terms' => [$field => $value]]]];
       }
-      if ($operator == "IS NULL" && $conjunction == "AND") {
+      elseif ($operator == "IS NULL" && $conjunction == "AND") {
         $bool['must_not'][] = ['exists' => ['field' => $field]];
       }
-      if ($operator == "IS NULL" && $conjunction == "OR") {
+      elseif ($operator == "IS NULL" && $conjunction == "OR") {
         $bool['should'][] = ['bool' => ['must_not' => ['exists' => ['field' => $field]]]];
       }
-      if ($operator == "IS NOT NULL" && $conjunction == "AND") {
+      elseif ($operator == "IS NOT NULL" && $conjunction == "AND") {
         $bool['must'][] = ['exists' => ['field' => $field]];
       }
-      if ($operator == "IS NOT NULL" && $conjunction == "OR") {
+      elseif ($operator == "IS NOT NULL" && $conjunction == "OR") {
         $bool['should'][] = ['exists' => ['field' => $field]];
       }
-      if ($operator == ">" && $conjunction == "AND") {
+      elseif ($operator == ">" && $conjunction == "AND") {
         $bool['must'][] = ['range' => [$field => ['gt' => $value]]];
       }
-      if ($operator == ">" && $conjunction == "OR") {
+      elseif ($operator == ">" && $conjunction == "OR") {
         $bool['should'][] = ['range' => [$field => ['gt' => $value]]];
       }
-      if ($operator == ">=" && $conjunction == "AND") {
+      elseif ($operator == ">=" && $conjunction == "AND") {
         $bool['must'][] = ['range' => [$field => ['gte' => $value]]];
       }
-      if ($operator == ">=" && $conjunction == "OR") {
+      elseif ($operator == ">=" && $conjunction == "OR") {
         $bool['should'][] = ['range' => [$field => ['gte' => $value]]];
       }
-      if ($operator == "<" && $conjunction == "AND") {
+      elseif ($operator == "<" && $conjunction == "AND") {
         $bool['must'][] = ['range' => [$field => ['lt' => $value]]];
       }
-      if ($operator == "<" && $conjunction == "OR") {
+      elseif ($operator == "<" && $conjunction == "OR") {
         $bool['should'][] = ['range' => [$field => ['lt' => $value]]];
       }
-      if ($operator == "<=" && $conjunction == "AND") {
+      elseif ($operator == "<=" && $conjunction == "AND") {
         $bool['must'][] = ['range' => [$field => ['lte' => $value]]];
       }
-      if ($operator == "<=" && $conjunction == "OR") {
+      elseif ($operator == "<=" && $conjunction == "OR") {
         $bool['should'][] = ['range' => [$field => ['lte' => $value]]];
       }
-      if ($operator == "BETWEEN") {
+      elseif ($operator == "BETWEEN") {
         natsort($value);
         if ($conjunction == "AND") {
           $bool['must'][] = ['range' => [$field => [
@@ -216,32 +222,32 @@ class Query extends QueryBase implements QueryInterface {
             'lt' => $value[1],
           ]]];
         }
-        if ($conjunction == "OR") {
+        elseif ($conjunction == "OR") {
           $bool['should'][] = ['range' => [$field => [
             'gt' => $value[0],
             'lt' => $value[1],
           ]]];
         }
       }
-      if ($operator == "STARTS_WITH" && $conjunction == "AND") {
+      elseif ($operator == "STARTS_WITH" && $conjunction == "AND") {
         $bool['must'][] = ['prefix' => [$field => $value]];
       }
-      if ($operator == "STARTS_WITH" && $conjunction == "OR") {
+      elseif ($operator == "STARTS_WITH" && $conjunction == "OR") {
         $bool['should'][] = ['prefix' => [$field => $value]];
       }
-      if ($operator == "ENDS_WITH" && $conjunction == "AND") {
+      elseif ($operator == "ENDS_WITH" && $conjunction == "AND") {
         //TODO: WARNING THIS IS EXPENSIVE
         $bool['must'][] = ['wildcard' => [$field => '*'.$value]];
       }
-      if ($operator == "ENDS_WITH" && $conjunction == "OR") {
+      elseif ($operator == "ENDS_WITH" && $conjunction == "OR") {
         //TODO: WARNING THIS IS EXPENSIVE
         $bool['should'][] = ['wildcard' => [$field => '*'.$value]];
       }
-      if ($operator == "CONTAINS" && $conjunction == "AND") {
+      elseif ($operator == "CONTAINS" && $conjunction == "AND") {
         //TODO: WARNING THIS IS EXPENSIVE
         $bool['must'][] = ['wildcard' => [$field => '*'.$value.'*']];
       }
-      if ($operator == "CONTAINS" && $conjunction == "OR") {
+      elseif ($operator == "CONTAINS" && $conjunction == "OR") {
         //TODO: WARNING THIS IS EXPENSIVE
         $bool['should'][] = ['wildcard' => [$field => '*'.$value.'*']];
       }
