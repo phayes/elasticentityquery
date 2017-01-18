@@ -49,6 +49,8 @@ class QueryTest extends UnitTestCase {
           'body' => $item]
         );
       }
+      // Wait for indexing to complete
+      sleep(1);
     }
   }
 
@@ -71,179 +73,136 @@ class QueryTest extends UnitTestCase {
     // =
     $query = $this->newQuery($conjunction);
     $query->condition('guid', '0d24fe77-5fef-49fe-9696-7ea784b241b6');
-    $result = $query->getResult();
-    $this->assertEquals(1, $result['hits']['total'], '=');
+    $result = $query->execute();
+    $this->assertEquals(1, count($result), '=');
+    $this->assertEquals('0d24fe77-5fef-49fe-9696-7ea784b241b6', reset($result), '=');
 
     // <>
     $query = $this->newQuery($conjunction);
     $query->condition('guid', '0d24fe77-5fef-49fe-9696-7ea784b241b6', '<>');
-    $result = $query->getResult();
-    $this->assertEquals(4, $result['hits']['total'], '<>');
+    $result = $query->execute();
+    $this->assertEquals(4, count($result), '<>');
 
     // IN
     $query = $this->newQuery($conjunction);
     $query->condition('eyeColor', ['brown', 'green'], 'IN');
-    $result = $query->getResult();
-    $this->assertEquals(3, $result['hits']['total'], 'IN');
+    $result = $query->execute();
+    $this->assertEquals(3, count($result), 'IN');
 
     // NOT IN
     $query = $this->newQuery($conjunction);
     $query->condition('eyeColor', ['brown', 'green'], 'NOT IN');
-    $result = $query->getResult();
-    $this->assertEquals(2, $result['hits']['total'], 'NOT IN');
+    $result = $query->execute();
+    $this->assertEquals(2, count($result), 'NOT IN');
 
     // IS NOT NULL / exists
     $query = $this->newQuery($conjunction);
     $query->exists('favoriteFruit');
-    $result = $query->getResult();
-    $this->assertEquals(5, $result['hits']['total'], 'IS NOT NULL / exists');
+    $result = $query->execute();
+    $this->assertEquals(5, count($result), 'IS NOT NULL / exists');
 
     // IS NULL / notExists
     $query = $this->newQuery($conjunction);
     $query->notExists('favoriteFruit');
-    $result = $query->getResult();
-    $this->assertEquals(0, $result['hits']['total'], 'IS NULL / notExists');
+    $result = $query->execute();
+    $this->assertEquals(0, count($result), 'IS NULL / notExists');
 
     // >
     $query = $this->newQuery($conjunction);
     $query->condition('age', 33, '>');
-    $result = $query->getResult();
-    $this->assertEquals(0, $result['hits']['total'], '>');
+    $result = $query->execute();
+    $this->assertEquals(0, count($result), '>');
 
     // >=
     $query = $this->newQuery($conjunction);
     $query->condition('age', 33, '>=');
-    $result = $query->getResult();
-    $this->assertEquals(1, $result['hits']['total'], '>=');
+    $result = $query->execute();
+    $this->assertEquals(1, count($result), '>=');
+    $this->assertEquals('0d24fe77-5fef-49fe-9696-7ea784b241b6', reset($result), '>=');
 
     // <
     $query = $this->newQuery($conjunction);
     $query->condition('age', 33, '<');
-    $result = $query->getResult();
-    $this->assertEquals(4, $result['hits']['total'], '<');
+    $result = $query->execute();
+    $this->assertEquals(4, count($result), '<');
 
     // <=
     $query = $this->newQuery($conjunction);
     $query->condition('age', 33, '<=');
-    $result = $query->getResult();
-    $this->assertEquals(5, $result['hits']['total'], '<=');
+    $result = $query->execute();
+    $this->assertEquals(5, count($result), '<=');
 
     // BETWEEN
     $query = $this->newQuery($conjunction);
     $query->condition('age', [20, 25], 'BETWEEN');
-    $result = $query->getResult();
-    $this->assertEquals(2, $result['hits']['total'], 'BETWEEN');
+    $result = $query->execute();
+    $this->assertEquals(2, count($result), 'BETWEEN');
 
     // STARTS_WITH
     $query = $this->newQuery($conjunction);
     $query->condition('eyeColor', 'b', 'STARTS_WITH');
-    $result = $query->getResult();
-    $this->assertEquals(4, $result['hits']['total'], 'STARTS_WITH');
+    $result = $query->execute();
+    $this->assertEquals(4, count($result), 'STARTS_WITH');
 
     // ENDS_WITH
     $query = $this->newQuery($conjunction);
     $query->condition('eyeColor', 'een', 'ENDS_WITH');
-    $result = $query->getResult();
-    $this->assertEquals(1, $result['hits']['total'], 'ENDS_WITH');
+    $result = $query->execute();
+    $this->assertEquals(1, count($result), 'ENDS_WITH');
+    $this->assertEquals('29d3077e-0378-4949-a201-b36574e6c35c', reset($result), '>=');
 
     // CONTAINS
     $query = $this->newQuery($conjunction);
     $query->condition('address', 'Tennessee', 'CONTAINS');
-    $result = $query->getResult();
-    $this->assertEquals(2, $result['hits']['total'], 'CONTAINS');
+    $result = $query->execute();
+    $this->assertEquals(2, count($result), 'CONTAINS');
   }
 
-  function testSingleOr() {
-    $conjunction = 'OR';
+  function testMultipleAnd() {
+    $conjunction = 'AND';
 
     // =
     $query = $this->newQuery($conjunction);
-    $query->condition('guid', '0d24fe77-5fef-49fe-9696-7ea784b241b6');
-    $result = $query->getResult();
-    $this->assertEquals(1, $result['hits']['total'], '=');
+    $query->condition('tags', 'Lorem');
+    $query->condition('eyeColor', 'blue');
+    $result = $query->execute();
+    $this->assertEquals(1, count($result), '=');
+    $this->assertEquals('0d24fe77-5fef-49fe-9696-7ea784b241b6', reset($result), '=');
+  }
 
-    // <>
-    $query = $this->newQuery($conjunction);
-    $query->condition('guid', '0d24fe77-5fef-49fe-9696-7ea784b241b6', '<>');
-    $result = $query->getResult();
-    $this->assertEquals(4, $result['hits']['total'], '<>');
+  function testCount() {
+    $conjunction = 'AND';
 
-    // IN
     $query = $this->newQuery($conjunction);
-    $query->condition('eyeColor', ['brown', 'green'], 'IN');
-    $result = $query->getResult();
-    $this->assertEquals(3, $result['hits']['total'], 'IN');
+    $query->condition('tags', 'Lorem');
+    $query->condition('eyeColor', 'blue');
+    $query->count();
+    $count = $query->execute();
+    $this->assertEquals(1, $count);
+  }
 
-    // NOT IN
-    $query = $this->newQuery($conjunction);
-    $query->condition('eyeColor', ['brown', 'green'], 'NOT IN');
-    $result = $query->getResult();
-    $this->assertEquals(2, $result['hits']['total'], 'NOT IN');
+  function testRange() {
+    $conjunction = 'AND';
 
-    // IS NOT NULL / exists
     $query = $this->newQuery($conjunction);
-    $query->exists('favoriteFruit');
-    $result = $query->getResult();
-    $this->assertEquals(5, $result['hits']['total'], 'IS NOT NULL / exists');
+    $query->range(3);
+    $result = $query->execute();
+    $this->assertEquals(2, count($result));
 
-    // IS NULL / notExists
     $query = $this->newQuery($conjunction);
-    $query->notExists('favoriteFruit');
-    $result = $query->getResult();
-    $this->assertEquals(0, $result['hits']['total'], 'IS NULL / notExists');
+    $query->range(NULL, 2);
+    $result = $query->execute();
+    $this->assertEquals(2, count($result));
 
-    // >
     $query = $this->newQuery($conjunction);
-    $query->condition('age', 33, '>');
-    $result = $query->getResult();
-    $this->assertEquals(0, $result['hits']['total'], '>');
-
-    // >=
-    $query = $this->newQuery($conjunction);
-    $query->condition('age', 33, '>=');
-    $result = $query->getResult();
-    $this->assertEquals(1, $result['hits']['total'], '>=');
-
-    // <
-    $query = $this->newQuery($conjunction);
-    $query->condition('age', 33, '<');
-    $result = $query->getResult();
-    $this->assertEquals(4, $result['hits']['total'], '<');
-
-    // <=
-    $query = $this->newQuery($conjunction);
-    $query->condition('age', 33, '<=');
-    $result = $query->getResult();
-    $this->assertEquals(5, $result['hits']['total'], '<=');
-
-    // BETWEEN
-    $query = $this->newQuery($conjunction);
-    $query->condition('age', [20, 25], 'BETWEEN');
-    $result = $query->getResult();
-    $this->assertEquals(2, $result['hits']['total'], 'BETWEEN');
-
-    // STARTS_WITH
-    $query = $this->newQuery($conjunction);
-    $query->condition('eyeColor', 'b', 'STARTS_WITH');
-    $result = $query->getResult();
-    $this->assertEquals(4, $result['hits']['total'], 'STARTS_WITH');
-
-    // ENDS_WITH
-    $query = $this->newQuery($conjunction);
-    $query->condition('eyeColor', 'een', 'ENDS_WITH');
-    $result = $query->getResult();
-    $this->assertEquals(1, $result['hits']['total'], 'ENDS_WITH');
-
-    // CONTAINS
-    $query = $this->newQuery($conjunction);
-    $query->condition('address', 'Tennessee', 'CONTAINS');
-    $result = $query->getResult();
-    $this->assertEquals(2, $result['hits']['total'], 'CONTAINS');
+    $query->range(1, 2);
+    $result = $query->execute();
+    $this->assertEquals(2, count($result));
   }
 
   static function tearDownAfterClass() {
-    $client = ClientBuilder::create()->build();
-    $client->indices()->delete(['index' => 'elasticentityquery_test']);
+    //$client = ClientBuilder::create()->build();
+    //$client->indices()->delete(['index' => 'elasticentityquery_test']);
   }
 
 }
