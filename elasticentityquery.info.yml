@@ -1,0 +1,6 @@
+name: Elastic EntityQuery
+description: Uses elasticsearch to perform EntityQuery
+package: elasticsearch
+type: module
+version: 1.0
+core: 8.x

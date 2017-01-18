@@ -1,0 +1,10 @@
+{
+  "name": "drupal/elasticentityquery",
+  "description": "Implements EntityQuery using an elasticsearch backend",
+  "type": "drupal-module",
+  "homepage": "https://www.drupal.org/project/examples",
+  "license": "GPL-2.0+", 
+  "require": {
+    "elasticsearch/elasticsearch": "^5.0"
+  }
+}
