@@ -216,6 +216,18 @@ class QueryTest extends UnitTestCase {
     $this->assertContains('1578747e-248a-4351-ae6c-aa273d8f297e', $result);
   }
 
+  function testSort() {
+    $query = $this->newQuery('AND');
+    $query->sort('age', 'asc');
+    $result = $query->execute();
+    $this->assertEquals('1578747e-248a-4351-ae6c-aa273d8f297e', reset($result));
+  
+    $query = $this->newQuery('AND');
+    $query->sort('age', 'desc');
+    $result = $query->execute();
+    $this->assertEquals('0d24fe77-5fef-49fe-9696-7ea784b241b6', reset($result));
+  }
+
   static function tearDownAfterClass() {
     //$client = ClientBuilder::create()->build();
     //$client->indices()->delete(['index' => 'elasticentityquery_test']);
