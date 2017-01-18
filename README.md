@@ -1,2 +1,5 @@
-# D8HWexample
-D8 Hello World Module
+# elasticsearch backend for EntityQuery
+
+ACTIVE WORK IN PROGRESS
+
+![under construction)[http://www.netanimations.net/fire-under-construction-animation.gif]
