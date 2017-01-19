@@ -1,3 +1,7 @@
+sudo: required
+
+dist: trusty
+
 language: php
 php:
   - '5.5'
@@ -5,11 +9,21 @@ php:
   - '7.0'
   - '7.1'
 
+services:
+ - docker
+
+before_install:
+  - echo "deb https://apt.dockerproject.org/repo ubuntu-precise main" | sudo tee /etc/apt/sources.list.d/docker.list
+  - sudo apt-get update
+  - sudo apt-get install -o Dpkg::Options::="--force-confold" --force-yes -y docker-engine
+  - sudo sysctl -w vm.max_map_count=262144 && docker-compose up -d
+  - docker-compose logs # for debugging
+
 before_script:
  - cd ..
  - git clone https://github.com/drupal/drupal
  - ls -lah
- - ln -s elasticentityquery drupal/modules/elasticentityquery
+ - ln -s ../../elasticentityquery drupal/modules/elasticentityquery
  - cd drupal
  - composer require elasticsearch/elasticsearch
  - composer install
