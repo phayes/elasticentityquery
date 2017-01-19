@@ -99,6 +99,9 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
               $group_by[$group['field']]['terms']['order'][$alias] = strtolower($sort['direction']);
             }
           }
+          if ($bucket_selector = $this->getBucketSelector()) {
+            $group_by[$group['field']]['aggs']['bucket_filter']['bucket_selector'] = $bucket_selector;
+          }
         }
         $prev = $group_by;
       }
@@ -126,6 +129,44 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
 
     // If not found just try to use what's provided directlty as an aggregate function
     return $map[strtoupper($sql_function)] ?? strtolower($sql_function);
+  }
+
+  private function getBucketSelector() {
+    if (empty($this->conditionAggregate->conditions())) {
+      return NULL;
+    }
+
+    $con = $this->scriptOperator($this->conditionAggregate->getConjunction());
+    $script_conditions = [];
+    $paths = [];
+    foreach ($this->conditionAggregate->conditions() as $condition) {
+      $alias = $this->getAggregationAlias($condition['field'], $condition['function']);
+      $op = $this->scriptOperator($condition['operator']) ?? '==';
+      $val = is_numeric($condition['value']) ? $condition['value'] : "'" . $condition['value'] . "'";
+      $script_conditions[] = 'params.' . $alias . ' ' . $op . ' ' . $val;
+      $paths[$alias] = $alias;
+    }
+    return [
+      'buckets_path' => $paths,
+      'script' => implode(' ' . $con . ' ', $script_conditions)
+    ];
+  }
+
+  private function scriptOperator($sql_operator) {
+    $map = [
+      '=' => '==', 
+      '>' => '>',
+      '>=' => '>=', 
+      '<' => '<',
+      '<=' => '<=', 
+      'AND' => '&&',
+      'OR' => '||',
+      'NOT' => '!',
+      '<>' => '!=', 
+    ];
+
+    // If not found just try to use what's provided directlty
+    return $map[strtoupper($sql_operator)] ?? strtolower($sql_operator);
   }
 
   

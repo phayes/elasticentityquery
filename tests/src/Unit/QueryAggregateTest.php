@@ -182,6 +182,22 @@ class QueryAggregateTest extends UnitTestCase {
     $this->assertEquals(29, $result[2]['age_avg']);
   }
 
+  public function testConditionAggregation() {
+    $query = $this->newQuery();
+    $result = $query->groupBy('eyeColor')->conditionAggregate('age', 'avg', '25', '>')->execute();
+    $this->assertEquals(2, count($result));
+
+    $query = $this->newQuery();
+    $result = $query->groupBy('eyeColor')
+      ->conditionAggregate('age', 'avg', '25', '>')
+      ->conditionAggregate('age', 'min', 27)
+      ->execute();
+    $this->assertEquals(1, count($result));
+    $this->assertEquals(30, $result[0]['age_avg']);
+    $this->assertEquals(27, $result[0]['age_min']);
+    $this->assertEquals('blue', $result[0]['eyeColor']);
+  }
+
 
 
 }
