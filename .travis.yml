@@ -15,5 +15,5 @@ before-script:
  - composer install
  - cd core
 
-script
+script:
  - ../vendor/bin/phpunit --group=elasticentityquery --testsuite=unit
