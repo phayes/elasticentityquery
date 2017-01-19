@@ -62,25 +62,10 @@ class QueryAggregateTest extends UnitTestCase {
   }
   
   public function testBasicAggregateQuery() {
-    
-    // count aggregation
-    $query = $this->newQuery();
-    $result = $query->groupBy('eyeColor')->aggregate('guid', 'count')->execute();
-    foreach ($result as $res) {
-      if ($res['eyeColor'] == 'blue') {
-        $this->assertEquals(2, $res['guid_count'], 'count blue');
-      }
-      if ($res['eyeColor'] == 'brown') {
-        $this->assertEquals(2, $res['guid_count'], 'count brown');
-      }
-      if ($res['eyeColor'] == 'green') {
-        $this->assertEquals(1, $res['guid_count'], 'count green');
-      }
-    }
-
-    //avg aggregation
+    // avg aggregation
     $query = $this->newQuery();
     $result = $query->groupBy('eyeColor')->aggregate('age', 'avg')->execute();
+    $this->assertEquals(3, count($result));
     foreach ($result as $res) {
       if ($res['eyeColor'] == 'blue') {
         $this->assertEquals(30, $res['age_avg'], 'average age blue');
@@ -93,8 +78,42 @@ class QueryAggregateTest extends UnitTestCase {
       }
     }
 
+    // count aggregation
+    $query = $this->newQuery();
+    $result = $query->groupBy('eyeColor')->aggregate('guid', 'count')->execute();
+    $this->assertEquals(3, count($result));
+    foreach ($result as $res) {
+      if ($res['eyeColor'] == 'blue') {
+        $this->assertEquals(2, $res['guid_count'], 'count blue');
+      }
+      if ($res['eyeColor'] == 'brown') {
+        $this->assertEquals(2, $res['guid_count'], 'count brown');
+      }
+      if ($res['eyeColor'] == 'green') {
+        $this->assertEquals(1, $res['guid_count'], 'count green');
+      }
+    }
 
+    // aggregation with no grouping
+    $query = $this->newQuery();
+    $result = $query->aggregate('age', 'sum')->execute();
+    $this->assertEquals(133, $result[0]['age_sum'], 'sum all ages with no grouping');
   }
+
+    public function testMultiGroup() {
+      // avg aggregation
+      $query = $this->newQuery();
+      $result = $query->groupBy('eyeColor')->groupBy('isActive')->aggregate('age', 'avg')->execute();
+      $this->assertEquals(4, count($result));
+      foreach ($result as $res) {
+        if (!$res['isActive'] && $res['eyeColor'] == 'blue') {
+          $this->assertEquals(30, $res['age_avg'], '!isActive/blue, age_avg');
+        }
+        if (!$res['isActive'] && $res['eyeColor'] == 'brown') {
+          $this->assertEquals(21, $res['age_avg'], '!isActive/brown, age_avg');
+        }
+      }
+    }
 
 
 }

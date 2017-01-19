@@ -13,25 +13,37 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
     $result = $this->getResult();
 
     $res = [];
-    foreach ($this->aggregate as $alias => $aggregate) {
-      foreach ($result['aggregations'] as $groupField => $group_agg) {
-        foreach ($group_agg['buckets'] as $bucket) {
-          if (strtolower($aggregate['function']) != 'count') {
-            $res[] = [
-              $alias => $bucket[$alias]['value'],
-              $groupField => $bucket['key'], 
-            ];
-          }
-          else {
-            $res[] = [
-              $alias => $bucket['doc_count'],
-              $groupField => $bucket['key'], 
-            ];
-          }
+    foreach ($result['aggregations'] as $group_field => $agg) {
+      if (isset($agg['buckets'])) {
+        foreach ($agg['buckets'] as $bucket) {
+          $res = array_merge($res, $this->getResultFromBucket($bucket, $group_field));
+        }
+      }
+      else {
+        $res[] = [$group_field => $agg['value']];
+      }
+    }
+
+    return $res;
+  }
+
+  function getResultFromBucket($bucket, $group_field, $additional = []) {
+    $res = [];
+
+    $additional[$group_field] = $bucket['key'];
+
+    foreach ($bucket as $k => $v) {
+      // Value bucket
+      if (is_array($v) && isset($v['value'])) {
+        $res[] = array_merge([$k => $v['value']], $additional);
+      }
+      // Bucket of buckets
+      elseif (is_array($v) && isset($v['buckets'])) {
+        foreach ($v['buckets'] as $subbucket) {
+          $res = array_merge($res, $this->getResultFromBucket($subbucket, $k, $additional));
         }
       }
     }
-    
     return $res;
   }
 
@@ -60,22 +72,29 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
   function buildRequest() {
     $params = parent::buildRequest();
 
-
-    // TODO: REDO THIS TO SUPPORT
-    // - Aggregate without group by
-    // - multiple groupBy clauses - http://stackoverflow.com/questions/20775040/elasticsearch-group-by-multiple-fields
-
+    $aggregates = [];
+    foreach ($this->aggregate as $aggregate) {
+      $func = $this->getAggFunc($aggregate['function']);
+      $aggregates[$aggregate['alias']][$func]['field'] = $aggregate['field'];
+    }
 
     if (!empty($this->groupBy)) {
+      $prev = FALSE;
       foreach ($this->groupBy as $group) {
-        $params['body']['aggs'][$group['field']]['terms']['field'] = $group['field'];
-        foreach ($this->aggregate as $aggregate) {
-          if (strtolower($aggregate['function']) != 'count') { // count is always included implicit
-            $func = $this->getAggFunc($aggregate['function']);
-            $params['body']['aggs'][$group['field']]['aggs'][$aggregate['alias']][$func]['field'] = $aggregate['field'];
-          }
+        $group_by = [];
+        $group_by[$group['field']]['terms']['field'] = $group['field'];
+        if ($prev) {
+          $group_by[$group['field']]['aggs'] = $prev;
         }
+        elseif (!empty($aggregates)) {
+          $group_by[$group['field']]['aggs'] = $aggregates;
+        }
+        $prev = $group_by;
       }
+      $params['body']['aggs'] = $group_by;
+    }
+    elseif (!empty($aggregates)) {
+      $params['body']['aggs'] = $aggregates;
     }
 
     // hits can be ignored
@@ -90,6 +109,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
       'MAX' => 'max', 
       'AVG' => 'avg', 
       'SUM' => 'sum', 
+      'COUNT' => 'value_count', 
       'UNIQUE' => 'cardinality',
     ];
 
