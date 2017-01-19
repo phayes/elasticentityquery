@@ -100,20 +100,59 @@ class QueryAggregateTest extends UnitTestCase {
     $this->assertEquals(133, $result[0]['age_sum'], 'sum all ages with no grouping');
   }
 
-    public function testMultiGroup() {
-      // avg aggregation
-      $query = $this->newQuery();
-      $result = $query->groupBy('eyeColor')->groupBy('isActive')->aggregate('age', 'avg')->execute();
-      $this->assertEquals(4, count($result));
-      foreach ($result as $res) {
-        if (!$res['isActive'] && $res['eyeColor'] == 'blue') {
-          $this->assertEquals(30, $res['age_avg'], '!isActive/blue, age_avg');
-        }
-        if (!$res['isActive'] && $res['eyeColor'] == 'brown') {
-          $this->assertEquals(21, $res['age_avg'], '!isActive/brown, age_avg');
-        }
+  public function testMultiGroup() {
+    // get the average age, sorted by eye-colour and activity
+    $query = $this->newQuery();
+    $result = $query->groupBy('eyeColor')->groupBy('isActive')->aggregate('age', 'avg')->execute();
+    $this->assertEquals(4, count($result));
+    foreach ($result as $res) {
+      if (!$res['isActive'] && $res['eyeColor'] == 'blue') {
+        $this->assertEquals(30, $res['age_avg'], '!isActive/blue, age_avg');
+      }
+      if (!$res['isActive'] && $res['eyeColor'] == 'brown') {
+        $this->assertEquals(21, $res['age_avg'], '!isActive/brown, age_avg');
       }
     }
+  }
+
+  public function testMultiAggregation() {
+    // For each eye-colour, get the max-age and the min-age
+    $query = $this->newQuery();
+    $result = $query->groupBy('eyeColor')->aggregate('age', 'min')->aggregate('age', 'max')->execute();
+    $this->assertEquals(3, count($result));
+    foreach ($result as $res) {
+      if ($res['eyeColor'] == 'blue') {
+        $this->assertEquals(27, $res['age_min'], 'age_min blue');
+        $this->assertEquals(33, $res['age_max'], 'age_max blue');
+      }
+      if ($res['eyeColor'] == 'green') {
+        $this->assertEquals(29, $res['age_min'], 'age_min green');
+        $this->assertEquals(29, $res['age_max'], 'age_max green');
+      }
+    }
+  }
+
+  public function testMultiGroupMultiAggregation() {
+    // For each eye-colour and activity, get the max-age and the min-age
+    $query = $this->newQuery();
+    $result = $query
+      ->groupBy('eyeColor')
+      ->groupBy('isActive')
+      ->aggregate('age', 'min')
+      ->aggregate('age', 'max')
+      ->execute();
+    $this->assertEquals(4, count($result));
+    foreach ($result as $res) {
+      if (!$res['isActive'] && $res['eyeColor'] == 'blue') {
+        $this->assertEquals(27, $res['age_min'], 'age_min !isActive-blue');
+        $this->assertEquals(33, $res['age_max'], 'age_max !isActive-blue');
+      }
+      if (!$res['isActive'] && $res['eyeColor'] == 'brown') {
+        $this->assertEquals(21, $res['age_min'], 'age_min !isActive-brown');
+        $this->assertEquals(21, $res['age_max'], 'age_max !isActive-brown');
+      }
+    }
+  }
 
 
 }

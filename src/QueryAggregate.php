@@ -29,13 +29,14 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
 
   function getResultFromBucket($bucket, $group_field, $additional = []) {
     $res = [];
+    $value = [];
 
     $additional[$group_field] = $bucket['key'];
-
+    
     foreach ($bucket as $k => $v) {
       // Value bucket
       if (is_array($v) && isset($v['value'])) {
-        $res[] = array_merge([$k => $v['value']], $additional);
+        $value = array_merge($value, [$k => $v['value']]);
       }
       // Bucket of buckets
       elseif (is_array($v) && isset($v['buckets'])) {
@@ -44,6 +45,11 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
         }
       }
     }
+
+    if (!empty($value)) {
+      $res[] = array_merge($value, $additional);
+    }
+
     return $res;
   }
 
