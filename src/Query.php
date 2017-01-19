@@ -100,7 +100,7 @@ class Query extends QueryBase implements QueryInterface {
     return $this->buildRequest();
   }
 
-  private function buildRequest() {
+  protected function buildRequest() {
     $params = [
       'index' => $this->entityTypeId,
     ];
@@ -149,13 +149,13 @@ class Query extends QueryBase implements QueryInterface {
       $value = $subcondition['value'];
 
       if (is_object($field) && $conjunction == "AND") {
-        $bool['must'][] = ['bool' => $this->getElasticFilterItem($field)];
+        $bool['filter'][] = ['bool' => $this->getElasticFilterItem($field)];
       }
       elseif (is_object($field) && $conjunction == "AND") {
         $bool['should'][] = ['bool' => $this->getElasticFilterItem($field)];
       }
       elseif ($operator == "=" && $conjunction == "AND") {
-        $bool['must'][] = ['term' => [$field => $value]];
+        $bool['filter'][] = ['term' => [$field => $value]];
       }
       elseif ($operator == "=" && $conjunction == "OR") {
         $bool['should'][] = ['term' => [$field => $value]];
@@ -167,7 +167,7 @@ class Query extends QueryBase implements QueryInterface {
         $bool['should'][] = ['bool' => ['must_not' => ['term' => [$field => $value]]]];
       }
       elseif ($operator == "IN" && $conjunction == "AND") {
-        $bool['must'][] = ['terms' => [$field => $value]];
+        $bool['filter'][] = ['terms' => [$field => $value]];
       }
       elseif ($operator == "IN" && $conjunction == "OR") {
         $bool['should'][] = ['terms' => [$field => $value]];
@@ -185,31 +185,31 @@ class Query extends QueryBase implements QueryInterface {
         $bool['should'][] = ['bool' => ['must_not' => ['exists' => ['field' => $field]]]];
       }
       elseif ($operator == "IS NOT NULL" && $conjunction == "AND") {
-        $bool['must'][] = ['exists' => ['field' => $field]];
+        $bool['filter'][] = ['exists' => ['field' => $field]];
       }
       elseif ($operator == "IS NOT NULL" && $conjunction == "OR") {
         $bool['should'][] = ['exists' => ['field' => $field]];
       }
       elseif ($operator == ">" && $conjunction == "AND") {
-        $bool['must'][] = ['range' => [$field => ['gt' => $value]]];
+        $bool['filter'][] = ['range' => [$field => ['gt' => $value]]];
       }
       elseif ($operator == ">" && $conjunction == "OR") {
         $bool['should'][] = ['range' => [$field => ['gt' => $value]]];
       }
       elseif ($operator == ">=" && $conjunction == "AND") {
-        $bool['must'][] = ['range' => [$field => ['gte' => $value]]];
+        $bool['filter'][] = ['range' => [$field => ['gte' => $value]]];
       }
       elseif ($operator == ">=" && $conjunction == "OR") {
         $bool['should'][] = ['range' => [$field => ['gte' => $value]]];
       }
       elseif ($operator == "<" && $conjunction == "AND") {
-        $bool['must'][] = ['range' => [$field => ['lt' => $value]]];
+        $bool['filter'][] = ['range' => [$field => ['lt' => $value]]];
       }
       elseif ($operator == "<" && $conjunction == "OR") {
         $bool['should'][] = ['range' => [$field => ['lt' => $value]]];
       }
       elseif ($operator == "<=" && $conjunction == "AND") {
-        $bool['must'][] = ['range' => [$field => ['lte' => $value]]];
+        $bool['filter'][] = ['range' => [$field => ['lte' => $value]]];
       }
       elseif ($operator == "<=" && $conjunction == "OR") {
         $bool['should'][] = ['range' => [$field => ['lte' => $value]]];
@@ -217,7 +217,7 @@ class Query extends QueryBase implements QueryInterface {
       elseif ($operator == "BETWEEN") {
         natsort($value);
         if ($conjunction == "AND") {
-          $bool['must'][] = ['range' => [$field => [
+          $bool['filter'][] = ['range' => [$field => [
             'gt' => $value[0],
             'lt' => $value[1],
           ]]];
@@ -230,14 +230,14 @@ class Query extends QueryBase implements QueryInterface {
         }
       }
       elseif ($operator == "STARTS_WITH" && $conjunction == "AND") {
-        $bool['must'][] = ['prefix' => [$field => $value]];
+        $bool['filter'][] = ['prefix' => [$field => $value]];
       }
       elseif ($operator == "STARTS_WITH" && $conjunction == "OR") {
         $bool['should'][] = ['prefix' => [$field => $value]];
       }
       elseif ($operator == "ENDS_WITH" && $conjunction == "AND") {
         //TODO: WARNING THIS IS EXPENSIVE
-        $bool['must'][] = ['wildcard' => [$field => '*'.$value]];
+        $bool['filter'][] = ['wildcard' => [$field => '*'.$value]];
       }
       elseif ($operator == "ENDS_WITH" && $conjunction == "OR") {
         //TODO: WARNING THIS IS EXPENSIVE
@@ -245,7 +245,7 @@ class Query extends QueryBase implements QueryInterface {
       }
       elseif ($operator == "CONTAINS" && $conjunction == "AND") {
         //TODO: WARNING THIS IS EXPENSIVE
-        $bool['must'][] = ['wildcard' => [$field => '*'.$value.'*']];
+        $bool['filter'][] = ['wildcard' => [$field => '*'.$value.'*']];
       }
       elseif ($operator == "CONTAINS" && $conjunction == "OR") {
         //TODO: WARNING THIS IS EXPENSIVE
