@@ -94,11 +94,15 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
         }
         elseif (!empty($aggregates)) {
           $group_by[$group['field']]['aggs'] = $aggregates;
+          
+          // Sort by aggregate values
           if (!empty($this->sortAggregate)) {
             foreach (array_reverse($this->sortAggregate) as $alias => $sort) {
               $group_by[$group['field']]['terms']['order'][$alias] = strtolower($sort['direction']);
             }
           }
+          
+          // Sort by groupBy buckets
           if (!empty($this->sort)) {
             foreach ($this->sort as $sort) {
               if ($sort['field'] == $group['field']) {
@@ -106,6 +110,8 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
               }
             }
           }
+
+          // Filter the buckets (simiar to SQLs HAVING)
           if ($bucket_selector = $this->getBucketSelector()) {
             $group_by[$group['field']]['aggs']['bucket_filter']['bucket_selector'] = $bucket_selector;
           }
@@ -115,6 +121,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
       $params['body']['aggs'] = $group_by;
     }
     elseif (!empty($aggregates)) {
+      // Aggregate without grouping. Will only ever produce one result since it's aggregating on the whole dataset.
       $params['body']['aggs'] = $aggregates;
     }
 
