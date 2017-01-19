@@ -3,9 +3,9 @@
 namespace Drupal\Tests\elasticentityquery\Unit;
 
 use Drupal\elasticentityquery\Query;
+use Drupal\elasticentityquery\Elastic;
 use Drupal\Core\Entity\EntityType;
 use Drupal\Tests\UnitTestCase;
-use Elasticsearch\ClientBuilder;
 
 /**
  * Query units tests.
@@ -27,7 +27,7 @@ class QueryTest extends UnitTestCase {
   protected function setUp() {
     parent::setUp();
 
-    $this->client = ClientBuilder::create()->build();
+    $this->client = Elastic::client();
 
     try {
       $this->client->indices()->stats();
@@ -229,7 +229,7 @@ class QueryTest extends UnitTestCase {
   }
 
   static function tearDownAfterClass() {
-    //$client = ClientBuilder::create()->build();
+    //$client = Elastic::client();
     //$client->indices()->delete(['index' => 'elasticentityquery_test']);
   }
 
