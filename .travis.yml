@@ -8,7 +8,8 @@ php:
 before_script:
  - cd ..
  - git clone https://github.com/drupal/drupal
- - ln -s ~ drupal/modules/elasticentityquery
+ - ls -lah
+ - ln -s elasticentityquery drupal/modules/elasticentityquery
  - cd drupal
  - composer require elasticsearch/elasticsearch
  - composer install
