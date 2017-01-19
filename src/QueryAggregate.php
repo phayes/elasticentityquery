@@ -99,6 +99,13 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
               $group_by[$group['field']]['terms']['order'][$alias] = strtolower($sort['direction']);
             }
           }
+          if (!empty($this->sort)) {
+            foreach ($this->sort as $sort) {
+              if ($sort['field'] == $group['field']) {
+                $group_by[$group['field']]['terms']['order']['_term'] = strtolower($sort['direction']);
+              }
+            }
+          }
           if ($bucket_selector = $this->getBucketSelector()) {
             $group_by[$group['field']]['aggs']['bucket_filter']['bucket_selector'] = $bucket_selector;
           }
