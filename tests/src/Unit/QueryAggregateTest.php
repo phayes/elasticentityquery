@@ -154,5 +154,34 @@ class QueryAggregateTest extends UnitTestCase {
     }
   }
 
+  public function testSortAggregation() {
+    $query = $this->newQuery();
+    $result = $query->groupBy('eyeColor')->sortAggregate('age', 'avg', 'asc')->execute();
+    $this->assertEquals(3, count($result));
+    $this->assertEquals(22, $result[0]['age_avg']);
+    $this->assertEquals('brown', $result[0]['eyeColor']);
+    $this->assertEquals(29, $result[1]['age_avg']);
+    $this->assertEquals('green', $result[1]['eyeColor']);
+    $this->assertEquals(30, $result[2]['age_avg']);
+    $this->assertEquals('blue', $result[2]['eyeColor']);
+
+    // sortAggregation with no grouping - has no impact since there is only one result
+    $query = $this->newQuery();
+    $result = $query->sortAggregate('age', 'sum', 'desc')->execute();
+    $this->assertEquals(133, $result[0]['age_sum'], 'sum all ages with no grouping');
+
+    // multi-level sort on an aggregation
+    $query = $this->newQuery();
+    $result = $query->groupBy('eyeColor')->sortAggregate('isActive', 'max', 'asc')->sortAggregate('age', 'avg', 'asc')->execute();
+    $this->assertEquals(3, count($result));
+    $this->assertEquals(0, $result[0]['isactive_max']);
+    $this->assertEquals(30, $result[0]['age_avg']);
+    $this->assertEquals(1, $result[1]['isactive_max']);
+    $this->assertEquals(22, $result[1]['age_avg']);
+    $this->assertEquals(1, $result[2]['isactive_max']);
+    $this->assertEquals(29, $result[2]['age_avg']);
+  }
+
+
 
 }

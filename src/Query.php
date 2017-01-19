@@ -142,7 +142,7 @@ class Query extends QueryBase implements QueryInterface {
 
   private function getElasticFilterItem(\Drupal\Core\Entity\Query\Sql\Condition $condition) {
     $conjunction = $condition->getConjunction();
-    $bool = ['must' => []];
+    $bool = ['filter' => []];
     foreach ($condition->conditions() as $subcondition) {
       $operator = $subcondition['operator'] ?? '=';
       $field = $subcondition['field'];

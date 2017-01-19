@@ -94,6 +94,11 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
         }
         elseif (!empty($aggregates)) {
           $group_by[$group['field']]['aggs'] = $aggregates;
+          if (!empty($this->sortAggregate)) {
+            foreach (array_reverse($this->sortAggregate) as $alias => $sort) {
+              $group_by[$group['field']]['terms']['order'][$alias] = strtolower($sort['direction']);
+            }
+          }
         }
         $prev = $group_by;
       }
