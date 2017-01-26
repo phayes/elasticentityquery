@@ -27,8 +27,7 @@ $query = Elastic::IndexQuery('my_elastic_index');
 $group = $query->orConditionGroup()
   ->condition('eyeColor', 'green')
   ->condition('eyeColor', 'blue');
-    
-$result = $query->condition($group)->execute();
+$results = $query->condition($group)->execute();
 
 // Sorting
 $results = Elastic::IndexQuery('my_elastic_index');
@@ -53,4 +52,4 @@ $results = Elastic::IndexQuery('my_elastic_index', 'AND', ['hosts' => ['1.2.3.4:
   ->condition('eyeColor', 'blue')
   ->execute();
 
-``
+```
