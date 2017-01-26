@@ -10,23 +10,23 @@ php:
   - '7.1'
 
 services:
- - docker
+  - docker
 
- before_install:
+before_install:
   - sudo sysctl -w vm.max_map_count=262144 # setting needed for elasticsearch
   - docker pull elasticsearch
   - docker run -d -p 127.0.0.1:9200:9200 --name elasticsearch elasticsearch
 
 before_script:
- - cd ..
- - git clone https://github.com/drupal/drupal
- - ls -lah
- - ln -s ../../elasticentityquery drupal/modules/elasticentityquery
- - cd drupal
- - composer require elasticsearch/elasticsearch
- - composer install
- - cd core
+  - cd ..
+  - git clone https://github.com/drupal/drupal
+  - ls -lah
+  - ln -s ../../elasticentityquery drupal/modules/elasticentityquery
+  - cd drupal
+  - composer require elasticsearch/elasticsearch
+  - composer install
+  - cd core
 
 script:
- - ../vendor/bin/phpunit --group=elasticentityquery --testsuite=unit
+  - ../vendor/bin/phpunit --group=elasticentityquery --testsuite=unit
  
