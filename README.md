@@ -35,7 +35,7 @@ $results = Elastic::IndexQuery('my_elastic_index');
   ->execute();
 
 // Aggregate Queries
-$result = Elastic::IndexQuery('my_elastic_index')
+$result = Elastic::IndexQueryAggregate('my_elastic_index')
   ->groupBy('eyeColor')
   ->aggregate('age', 'avg')
   ->execute();
