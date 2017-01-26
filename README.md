@@ -41,7 +41,7 @@ $result = Elastic::IndexQuery('my_elastic_index')
   ->execute();
   
 // OR queries
-$result = Elastic::IndexQuery('my_elastic_index', 'OR)
+$result = Elastic::IndexQuery('my_elastic_index', 'OR')
   ->condition('eyeColor', 'green')
   ->condition('eyeColor', 'blue')
   ->execute();
