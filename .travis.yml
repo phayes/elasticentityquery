@@ -29,3 +29,4 @@ before_script:
 
 script:
  - ../vendor/bin/phpunit --group=elasticentityquery --testsuite=unit
+ 
