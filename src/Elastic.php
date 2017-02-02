@@ -3,6 +3,8 @@
 namespace Drupal\elasticentityquery;
 
 use Elasticsearch\ClientBuilder;
+use Drupal\elasticentityquery\Query;
+use Drupal\elasticentityquery\QueryAggregate;
 
 /**
  * Utility funcctions for working with elasticseach
@@ -23,5 +25,21 @@ class Elastic {
     $builder->setSelector('\Elasticsearch\ConnectionPool\Selectors\StickyRoundRobinSelector');
     $client = $builder->build();
     return $client;
+  }
+
+  static function IndexQuery($index, $conjunction = 'AND', array $config = []) {
+    $client = Elastic::client($config);
+    $entity_type = new EntityType(['id' => $index]);
+    $namespaces = ['Drupal\Core\Entity\Query\Sql'];
+    $query = new Query($entity_type, $conjunction, $this->client, $namespaces);
+    return $query;
+  }
+
+  static function IndexQueryAggregate($index, $conjunction = 'AND', array $config = []) {
+    $client = Elastic::client($config);
+    $entity_type = new EntityType(['id' => $index]);
+    $namespaces = ['Drupal\Core\Entity\Query\Sql'];
+    $query = new QueryAggregate($entity_type, $conjunction, $this->client, $namespaces);
+    return $query;
   }
 }

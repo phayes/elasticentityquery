@@ -56,11 +56,17 @@ class QueryTest extends UnitTestCase {
   }
 
   protected function newQuery($conjunction = 'AND') {
-    return Elastic::IndexQuery('elasticentityquery_test', $conjunction);
+    $entity_type = new EntityType(['id' => 'elasticentityquery_test']);
+    $namespaces = ['Drupal\Core\Entity\Query\Sql'];
+    $query = new Query($entity_type, $conjunction, $this->client, $namespaces);
+    return $query;
   }
 
   protected function newQueryAggregate($conjunction = 'AND') {
-    return Elastic::IndexQueryAggregate('elasticentityquery_test', $conjunction);
+    $entity_type = new EntityType(['id' => 'elasticentityquery_test']);
+    $namespaces = ['Drupal\Core\Entity\Query\Sql'];
+    $query = new QueryAggregate($entity_type, $conjunction, $this->client, $namespaces);
+    return $query;
   }
   
   public function testBasicQuery() {
