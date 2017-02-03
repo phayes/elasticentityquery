@@ -32,7 +32,7 @@ class Elastic {
     $client = Elastic::client($config);
     $entity_type = new EntityType(['id' => $index]);
     $namespaces = ['Drupal\Core\Entity\Query\Sql'];
-    $query = new Query($entity_type, $conjunction, $this->client, $namespaces);
+    $query = new Query($entity_type, $conjunction, $client, $namespaces);
     return $query;
   }
 
@@ -40,7 +40,7 @@ class Elastic {
     $client = Elastic::client($config);
     $entity_type = new EntityType(['id' => $index]);
     $namespaces = ['Drupal\Core\Entity\Query\Sql'];
-    $query = new QueryAggregate($entity_type, $conjunction, $this->client, $namespaces);
+    $query = new QueryAggregate($entity_type, $conjunction, $client, $namespaces);
     return $query;
   }
 }
