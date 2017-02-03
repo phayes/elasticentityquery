@@ -5,6 +5,7 @@ namespace Drupal\elasticentityquery;
 use Elasticsearch\ClientBuilder;
 use Drupal\elasticentityquery\Query;
 use Drupal\elasticentityquery\QueryAggregate;
+use Drupal\Core\Entity\EntityType;
 
 /**
  * Utility funcctions for working with elasticseach
