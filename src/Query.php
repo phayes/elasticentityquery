@@ -47,6 +47,13 @@ class Query extends QueryBase implements QueryInterface {
   protected $client;
 
   /**
+   * Limit query by type
+   * 
+   * @var string
+   */
+  protected $content_type;
+
+  /**
    * Constructs a query object.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
@@ -100,9 +107,13 @@ class Query extends QueryBase implements QueryInterface {
     return $this->buildRequest();
   }
 
+  public function getIndex() {
+    return $this->entityTypeId;
+  }
+
   protected function buildRequest() {
     $params = [
-      'index' => $this->entityTypeId,
+      'index' => $this->getIndex(),
     ];
 
     // For regular (non-count) queries    
@@ -112,7 +123,10 @@ class Query extends QueryBase implements QueryInterface {
     }
 
     // Top-level condition
-    $params['body']['query']['bool'] = $this->getElasticFilterItem($this->condition);
+    $topbool = $this->getElasticFilterItem($this->condition);
+    if (!empty($topbool)) {
+      $params['body']['query']['bool'] = $topbool;
+    }
 
     // Sorting
     if (!empty($this->sort)) {
@@ -137,12 +151,17 @@ class Query extends QueryBase implements QueryInterface {
       $params['body']['size'] = $params['body']['size'] ?? (10000 - ($params['body']['from'] ?? 0));
     }
 
+    // Set the type if specified
+    if (!empty($this->content_type)) {
+      $params['body']['query']['type']['value'] = $this->content_type;
+    }
+
     return $params;
   }
 
   private function getElasticFilterItem(\Drupal\Core\Entity\Query\Sql\Condition $condition) {
     $conjunction = strtoupper($condition->getConjunction());
-    $bool = ['filter' => []];
+    $bool = [];
     foreach ($condition->conditions() as $subcondition) {
       $operator = $subcondition['operator'] ?? '=';
       $field = $subcondition['field'];
@@ -256,5 +275,39 @@ class Query extends QueryBase implements QueryInterface {
     return $bool;
   }
 
+  public function setType($type) {
+    $this->content_type = $type;
+    return $this;
+  }
+
+  public function hasCondition($field, $operator = NULL) {
+    foreach ($this->condition->conditions() as $i => $subcondition) {
+      $checkop = $operator ?? '=';
+      $subop = $subcondition['operator'] ?? '=';
+
+      if ($subcondition['field'] == $field && $checkop == $subop) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+  public function getCondition($field) {
+    foreach ($this->condition->conditions() as $i => $subcondition) {
+      if ($subcondition['field'] == $field) {
+        return $subcondition;
+      }
+    }
+    return FALSE;
+  }
+
+  public function deleteCondition($field) {
+    $conditions = &$this->condition->conditions();
+    foreach ($this->condition->conditions() as $i => $subcondition) {
+      if ($subcondition['field'] == $field) {
+        unset ($conditions[$i]);
+      }
+    }
+  }
 
 }
