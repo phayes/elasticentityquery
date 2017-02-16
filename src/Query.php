@@ -111,6 +111,10 @@ class Query extends QueryBase implements QueryInterface {
     return $this->entityTypeId;
   }
 
+  public function translateField($field) {
+    return $field;
+  }
+
   protected function buildRequest() {
     $params = [
       'index' => $this->getIndex(),
@@ -164,7 +168,7 @@ class Query extends QueryBase implements QueryInterface {
     $bool = [];
     foreach ($condition->conditions() as $subcondition) {
       $operator = $subcondition['operator'] ?? '=';
-      $field = $subcondition['field'];
+      $field = $this->translateField($subcondition['field']);
       $value = $subcondition['value'];
 
       if (is_object($field) && $conjunction == "AND") {
