@@ -49,9 +49,9 @@ class Query extends QueryBase implements QueryInterface {
   /**
    * Limit query by type
    * 
-   * @var string
+   * @var array
    */
-  protected $content_type;
+  protected $content_type = [];
 
   /**
    * Constructs a query object.
@@ -153,7 +153,7 @@ class Query extends QueryBase implements QueryInterface {
 
     // Set the type if specified
     if (!empty($this->content_type)) {
-      $params['body']['query']['type']['value'] = $this->content_type;
+      $params['type'] = $this->content_type;
     }
 
     return $params;
@@ -275,8 +275,8 @@ class Query extends QueryBase implements QueryInterface {
     return $bool;
   }
 
-  public function setType($type) {
-    $this->content_type = $type;
+  public function addType($type) {
+    $this->content_type[] = $type;
     return $this;
   }
 
