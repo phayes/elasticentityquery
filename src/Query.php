@@ -82,13 +82,12 @@ class Query extends QueryBase implements QueryInterface {
     }
     else {
       // TODO: support for revisions? See https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Entity%21Query%21QueryInterface.php/function/QueryInterface%3A%3Aexecute/8.2.x
-      $ids = array();
+      $results = array();
       foreach ($result['hits']['hits'] as $hit) {
-        $ids[$hit['_id']] = $hit['_id'];
+        $results[$hit['_id']] = $this->includeSource() ? $hit['_source'] : $hit['_id'];
       }
-      return $ids;
+      return $results;
     }
-
   }
 
   public function getResult() {
@@ -115,6 +114,10 @@ class Query extends QueryBase implements QueryInterface {
     return $field;
   }
 
+  public function includeSource() {
+    return FALSE;
+  }
+
   protected function buildRequest() {
     $params = [
       'index' => $this->getIndex(),
@@ -123,7 +126,7 @@ class Query extends QueryBase implements QueryInterface {
     // For regular (non-count) queries    
     if (!$this->count) {
        // Don't include source
-       $params['body']['_source'] = false;
+       $params['body']['_source'] = $this->includeSource();
     }
 
     // Top-level condition

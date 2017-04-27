@@ -12,7 +12,7 @@ use Drupal\Core\Entity\EntityType;
  */
 class Elastic {
 
-  static function client($config =[]) {
+  public static function client($config =[]) {
     static $client; 
     if (!empty($client)) {
       return $client;
@@ -28,7 +28,7 @@ class Elastic {
     return $client;
   }
 
-  static function IndexQuery($index, $conjunction = 'AND', array $config = []) {
+  public static function IndexQuery($index, $conjunction = 'AND', array $config = []) {
     $client = Elastic::client($config);
     $entity_type = new EntityType(['id' => $index]);
     $namespaces = ['Drupal\Core\Entity\Query\Sql'];
@@ -36,7 +36,7 @@ class Elastic {
     return $query;
   }
 
-  static function IndexQueryAggregate($index, $conjunction = 'AND', array $config = []) {
+  public static function IndexQueryAggregate($index, $conjunction = 'AND', array $config = []) {
     $client = Elastic::client($config);
     $entity_type = new EntityType(['id' => $index]);
     $namespaces = ['Drupal\Core\Entity\Query\Sql'];

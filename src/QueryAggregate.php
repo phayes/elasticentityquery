@@ -27,7 +27,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
     return $res;
   }
 
-  function getResultFromBucket($bucket, $group_field, $additional = []) {
+  protected function getResultFromBucket($bucket, $group_field, $additional = []) {
     $res = [];
     $value = [];
 
@@ -75,7 +75,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
     return $this->conditionAggregate->notExists($field, $function, $langcode);
   }
 
-  function buildRequest() {
+  protected function buildRequest() {
     $params = parent::buildRequest();
 
     $aggregates = [];
@@ -86,8 +86,8 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
 
     if (!empty($this->groupBy)) {
       $prev = FALSE;
+      $group_by = [];
       foreach ($this->groupBy as $group) {
-        $group_by = [];
         $group_by[$group['field']]['terms']['field'] = $group['field'];
         if ($prev) {
           $group_by[$group['field']]['aggs'] = $prev;
@@ -131,7 +131,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
     return $params;
   }
 
-  private function getAggFunc($sql_function) {
+  protected function getAggFunc($sql_function) {
     $map = [
       'MIN' => 'min',
       'MAX' => 'max', 
@@ -145,7 +145,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
     return $map[strtoupper($sql_function)] ?? strtolower($sql_function);
   }
 
-  private function getBucketSelector() {
+  protected function getBucketSelector() {
     if (empty($this->conditionAggregate->conditions())) {
       return NULL;
     }
@@ -166,7 +166,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
     ];
   }
 
-  private function scriptOperator($sql_operator) {
+  protected function scriptOperator($sql_operator) {
     $map = [
       '=' => '==', 
       '>' => '>',
@@ -182,7 +182,5 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
     // If not found just try to use what's provided directlty
     return $map[strtoupper($sql_operator)] ?? strtolower($sql_operator);
   }
-
-  
 
 }
