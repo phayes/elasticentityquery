@@ -5,17 +5,11 @@ filter:
 
 build:
     environment:
-        elasticsearch: true
-        docker:
-            cache:
-                images:
-                  - "*"
+        docker: true
     tests:
         before:
-            - cd ..
-            - git clone https://github.com/drupal/drupal
-            - ls -lah
-            - ln -s ../../elasticentityquery drupal/modules/elasticentityquery
+            - cd && git clone https://github.com/drupal/drupal
+            - ln -s ../../build drupal/modules/elasticentityquery
             - cd drupal
             - composer require elasticsearch/elasticsearch
             - composer install
