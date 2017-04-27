@@ -1,6 +1,8 @@
 # elasticsearch backend for EntityQuery
 
-[![Build Status](https://travis-ci.org/phayes/elasticentityquery.svg?branch=8.x-1.x)](https://travis-ci.org/phayes/elasticentityquery)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/phayes/elasticentityquery/badges/quality-score.png?b=8.x-1.x)](https://scrutinizer-ci.com/g/phayes/elasticentityquery/?branch=8.x-1.x)
+[![Code Coverage](https://scrutinizer-ci.com/g/phayes/elasticentityquery/badges/coverage.png?b=8.x-1.x)](https://scrutinizer-ci.com/g/phayes/elasticentityquery/?branch=8.x-1.x)
+[![Build Status](https://scrutinizer-ci.com/g/phayes/elasticentityquery/badges/build.png?b=8.x-1.x)](https://scrutinizer-ci.com/g/phayes/elasticentityquery/build-status/8.x-1.x)
 
 Fully implements the EntityQuery interface using elasticsearch. Anything you can do using the regular drupal EntityQuery can be done in elasticsearch. 
 
