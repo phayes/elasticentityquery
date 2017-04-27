@@ -86,8 +86,8 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
 
     if (!empty($this->groupBy)) {
       $prev = FALSE;
-      $group_by = [];
       foreach ($this->groupBy as $group) {
+        $group_by = [];
         $group_by[$group['field']]['terms']['field'] = $group['field'];
         if ($prev) {
           $group_by[$group['field']]['aggs'] = $prev;
