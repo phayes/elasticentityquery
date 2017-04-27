@@ -16,7 +16,7 @@ build:
             - cd core
         override:
             -
-                command: ../vendor/bin/phpunit --group=elasticentityquery --testsuite=unit
+                command: ../vendor/bin/phpunit --group=elasticentityquery --testsuite=unit --coverage-text=phpunit.report.coverage.xml
                 coverage:
                     file: phpunit.report.coverage.xml
                     format: clover
