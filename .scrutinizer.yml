@@ -5,3 +5,12 @@ filter:
 build:
     environment:
         elasticsearch: true
+
+build:
+    tests:
+        override:
+            -
+                command: 'vendor/bin/phpunit'
+                coverage:
+                    file: 'phpunit.report.coverage.xml'
+                    format: 'clover'
