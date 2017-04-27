@@ -11,9 +11,18 @@ build:
                 images:
                   - "*"
     tests:
+        before:
+            - cd ..
+            - git clone https://github.com/drupal/drupal
+            - ls -lah
+            - ln -s ../../elasticentityquery drupal/modules/elasticentityquery
+            - cd drupal
+            - composer require elasticsearch/elasticsearch
+            - composer install
+            - cd core
         override:
             -
-                command: 'vendor/bin/phpunit'
+                command: ../vendor/bin/phpunit --group=elasticentityquery --testsuite=unit
                 coverage:
-                    file: 'phpunit.report.coverage.xml'
-                    format: 'clover'
+                    file: phpunit.report.coverage.xml
+                    format: clover
