@@ -18,5 +18,5 @@ build:
             -
                 command: ../vendor/bin/phpunit --group=elasticentityquery --testsuite=unit --coverage-text=$HOME/build/phpunit.report.coverage.xml
                 coverage:
-                    file: $HOME/build/phpunit.report.coverage.xml
+                    file: phpunit.report.coverage.xml
                     format: clover
