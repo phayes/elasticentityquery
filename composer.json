@@ -1,5 +1,5 @@
 {
-  "name": "drupal/elasticentityquery",
+  "name": "phayes/elasticentityquery",
   "description": "Implements EntityQuery using an elasticsearch backend",
   "type": "drupal-module",
   "homepage": "https://www.drupal.org/project/examples",
@@ -18,7 +18,7 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-master": "8.x-1.x"
+      "dev-master": "8.x-1.x-dev"
     }
   }
 }
