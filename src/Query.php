@@ -48,7 +48,7 @@ class Query extends QueryBase implements QueryInterface {
 
   /**
    * Limit query by type
-   * 
+   *
    * @var array
    */
   protected $content_type = [];
@@ -92,13 +92,14 @@ class Query extends QueryBase implements QueryInterface {
 
   public function getResult() {
     $params = $this->buildRequest();
+
     if ($this->count) {
       $result = $this->client->count($params);
     }
     else {
       $result = $this->client->search($params);
     }
-    
+
     return $result;
   }
 
@@ -123,7 +124,7 @@ class Query extends QueryBase implements QueryInterface {
       'index' => $this->getIndex(),
     ];
 
-    // For regular (non-count) queries    
+    // For regular (non-count) queries
     if (!$this->count) {
        // Don't include source
        $params['body']['_source'] = $this->includeSource();
@@ -289,10 +290,7 @@ class Query extends QueryBase implements QueryInterface {
 
   public function hasCondition($field, $operator = NULL) {
     foreach ($this->condition->conditions() as $i => $subcondition) {
-      $checkop = $operator ?? '=';
-      $subop = $subcondition['operator'] ?? '=';
-
-      if ($subcondition['field'] == $field && $checkop == $subop) {
+      if ($subcondition['field'] == $field) {
         return TRUE;
       }
     }
