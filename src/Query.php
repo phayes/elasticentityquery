@@ -2,12 +2,10 @@
 
 namespace Drupal\elasticentityquery;
 
-use Drupal\Core\Database\Connection;
-use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Query\QueryBase;
-use Drupal\Core\Entity\Query\QueryException;
 use Drupal\Core\Entity\Query\QueryInterface;
+use Elasticsearch\Client;
 
 /**
  * The SQL storage entity query class.
@@ -31,7 +29,7 @@ class Query extends QueryBase implements QueryInterface {
    *
    * @var array
    */
-  protected $sqlFields = array();
+  protected $sqlFields = [];
 
   /**
    * An array of strings added as to the group by, keyed by the string to avoid
@@ -39,7 +37,7 @@ class Query extends QueryBase implements QueryInterface {
    *
    * @var array
    */
-  protected $sqlGroupBy = array();
+  protected $sqlGroupBy = [];
 
   /**
    * @var \Elasticsearch\Client
@@ -62,11 +60,11 @@ class Query extends QueryBase implements QueryInterface {
    *   - AND: all of the conditions on the query need to match.
    *   - OR: at least one of the conditions on the query need to match.
    * @param \Elasticsearch\Client $client
-   *   Elasticsearch client to use
+   *   Elasticsearch client to use.
    * @param array $namespaces
    *   List of potential namespaces of the classes belonging to this query.
    */
-  public function __construct(EntityTypeInterface $entity_type, $conjunction = 'AND', \Elasticsearch\Client $client, array $namespaces) {
+  public function __construct(EntityTypeInterface $entity_type, $conjunction = 'AND', Client $client, array $namespaces) {
     parent::__construct($entity_type, $conjunction, $namespaces);
     $this->client = $client;
   }
@@ -82,7 +80,7 @@ class Query extends QueryBase implements QueryInterface {
     }
     else {
       // TODO: support for revisions? See https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Entity%21Query%21QueryInterface.php/function/QueryInterface%3A%3Aexecute/8.2.x
-      $results = array();
+      $results = [];
       foreach ($result['hits']['hits'] as $hit) {
         $results[$hit['_id']] = $this->includeSource() ? $hit['_source'] : $hit['_id'];
       }
@@ -90,6 +88,12 @@ class Query extends QueryBase implements QueryInterface {
     }
   }
 
+  /**
+   * Get the results of the elastic query.
+   *
+   * @return array
+   *   An array of results from elastic search.
+   */
   public function getResult() {
     $params = $this->buildRequest();
 
@@ -103,10 +107,12 @@ class Query extends QueryBase implements QueryInterface {
     return $result;
   }
 
-  public function debug() {
-    return $this->buildRequest();
-  }
-
+  /**
+   * Get the elastic indexes to search
+   *
+   * @return array
+   *   An array of elastic indexes.
+   */
   public function getIndex() {
     return $this->entityTypeId;
   }
@@ -119,6 +125,13 @@ class Query extends QueryBase implements QueryInterface {
     return FALSE;
   }
 
+  /**
+   * Build the elatic index request.
+   *
+   * @return array
+   *   A request array that can be sent using the
+   *   elasticsearch client.
+   */
   protected function buildRequest() {
     $params = [
       'index' => $this->getIndex(),
@@ -126,8 +139,8 @@ class Query extends QueryBase implements QueryInterface {
 
     // For regular (non-count) queries
     if (!$this->count) {
-       // Don't include source
-       $params['body']['_source'] = $this->includeSource();
+      // Don't include source.
+      $params['body']['_source'] = $this->includeSource();
     }
 
     // Top-level condition
@@ -182,13 +195,13 @@ class Query extends QueryBase implements QueryInterface {
         $bool['should'][] = ['bool' => $this->getElasticFilterItem($field)];
       }
       elseif ($operator == "=" && $conjunction == "AND") {
-        $bool['filter'][] = ['term' => [$field => $value]];
+        $bool['filter'][] = ['terms' => [$field => $value]];
       }
       elseif ($operator == "=" && $conjunction == "OR") {
-        $bool['should'][] = ['term' => [$field => $value]];
+        $bool['should'][] = ['terms' => [$field => $value]];
       }
       elseif (($operator == "<>" || $operator == "!=") && $conjunction == "AND") {
-        $bool['must_not'][] = ['term' => [$field => $value]];
+        $bool['must_not'][] = ['terms' => [$field => $value]];
       }
       elseif (($operator == "<>" || $operator == "!=") && $conjunction == "OR") {
         $bool['should'][] = ['bool' => ['must_not' => ['term' => [$field => $value]]]];
@@ -290,7 +303,7 @@ class Query extends QueryBase implements QueryInterface {
 
   public function hasCondition($field, $operator = NULL) {
     foreach ($this->condition->conditions() as $i => $subcondition) {
-      if ($subcondition['field'] == $field) {
+      if ($subcondition['field'] == $field ) {
         return TRUE;
       }
     }
