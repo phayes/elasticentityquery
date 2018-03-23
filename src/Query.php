@@ -195,27 +195,48 @@ class Query extends QueryBase implements QueryInterface {
         $bool['should'][] = ['bool' => $this->getElasticFilterItem($field)];
       }
       elseif ($operator == "=" && $conjunction == "AND") {
+        if (!is_array($value)) {
+          $value = [$value];
+        }
         $bool['filter'][] = ['terms' => [$field => $value]];
       }
       elseif ($operator == "=" && $conjunction == "OR") {
+        if (!is_array($value)) {
+          $value = [$value];
+        }
         $bool['should'][] = ['terms' => [$field => $value]];
       }
       elseif (($operator == "<>" || $operator == "!=") && $conjunction == "AND") {
+        if (!is_array($value)) {
+          $value = [$value];
+        }
         $bool['must_not'][] = ['terms' => [$field => $value]];
       }
       elseif (($operator == "<>" || $operator == "!=") && $conjunction == "OR") {
         $bool['should'][] = ['bool' => ['must_not' => ['term' => [$field => $value]]]];
       }
       elseif ($operator == "IN" && $conjunction == "AND") {
+        if (!is_array($value)) {
+          $value = [$value];
+        }
         $bool['filter'][] = ['terms' => [$field => $value]];
       }
       elseif ($operator == "IN" && $conjunction == "OR") {
+        if (!is_array($value)) {
+          $value = [$value];
+        }
         $bool['should'][] = ['terms' => [$field => $value]];
       }
       elseif ($operator == "NOT IN" && $conjunction == "AND") {
+        if (!is_array($value)) {
+          $value = [$value];
+        }
         $bool['must_not'][] = ['terms' => [$field => $value]];
       }
       elseif ($operator == "NOT IN" && $conjunction == "OR") {
+        if (!is_array($value)) {
+          $value = [$value];
+        }
         $bool['should'][] = ['bool' => ['must_not' => ['terms' => [$field => $value]]]];
       }
       elseif ($operator == "IS NULL" && $conjunction == "AND") {
