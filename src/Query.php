@@ -2,6 +2,7 @@
 
 namespace Drupal\elasticentityquery;
 
+use Drupal\Core\Entity\Query\Sql\Condition;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Query\QueryBase;
 use Drupal\Core\Entity\Query\QueryInterface;
@@ -152,7 +153,7 @@ class Query extends QueryBase implements QueryInterface {
     // Sorting
     if (!empty($this->sort)) {
       foreach ($this->sort as $sort) {
-        $params['body']['sort'] = [$sort['field'] => ['order' => strtolower($sort['direction'])]];
+        $params['body']['sort'] = [$this->translateField($sort['field']) => ['order' => strtolower($sort['direction'])]];
       }
     }
 
@@ -180,7 +181,7 @@ class Query extends QueryBase implements QueryInterface {
     return $params;
   }
 
-  private function getElasticFilterItem(\Drupal\Core\Entity\Query\Sql\Condition $condition) {
+  private function getElasticFilterItem(Condition $condition) {
     $conjunction = strtoupper($condition->getConjunction());
     $bool = [];
     foreach ($condition->conditions() as $subcondition) {

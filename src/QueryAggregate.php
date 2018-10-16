@@ -81,13 +81,14 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
     $aggregates = [];
     foreach ($this->aggregate as $aggregate) {
       $func = $this->getAggFunc($aggregate['function']);
-      $aggregates[$aggregate['alias']][$func]['field'] = $aggregate['field'];
+      $aggregates[$aggregate['alias']][$func]['field'] = $this->translateField($aggregate['field']);
     }
 
     if (!empty($this->groupBy)) {
       $prev = FALSE;
       foreach ($this->groupBy as $group) {
         $group_by = [];
+        $group['field'] = $this->translateField($group['field']);
         $group_by[$group['field']]['terms']['field'] = $group['field'];
         if ($prev) {
           $group_by[$group['field']]['aggs'] = $prev;
@@ -105,6 +106,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
           // Sort by groupBy buckets
           if (!empty($this->sort)) {
             foreach ($this->sort as $sort) {
+              $sort['field'] = $this->translateField($sort['field']);
               if ($sort['field'] == $group['field']) {
                 $group_by[$group['field']]['terms']['order']['_term'] = strtolower($sort['direction']);
               }
