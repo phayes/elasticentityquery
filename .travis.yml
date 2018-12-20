@@ -11,8 +11,8 @@ services:
 
 before_install:
   - sudo sysctl -w vm.max_map_count=262144 # setting needed for elasticsearch
-  - docker pull elasticsearch
-  - docker run -d -p 127.0.0.1:9200:9200 --name elasticsearch elasticsearch
+  - docker pull elasticsearch:6.4.2
+  - docker run -d -p 127.0.0.1:9200:9200 --name elasticsearch elasticsearch:6.4.2
 
 before_script:
   - cd ..
