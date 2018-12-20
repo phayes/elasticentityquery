@@ -9,7 +9,7 @@ use Drupal\Core\Entity\Query\QueryInterface;
 use Elasticsearch\Client;
 
 /**
- * The SQL storage entity query class.
+ * The elasticsearch entity query class.
  */
 class Query extends QueryBase implements QueryInterface {
 
@@ -118,6 +118,18 @@ class Query extends QueryBase implements QueryInterface {
     return $this->entityTypeId;
   }
 
+  /**
+   * Translate the field name from the local name to the elasticname
+   *
+   * 
+   * By default this does nothing, but can be overridden by child classes.
+   * 
+   * @param string $field
+   *  The field name.
+   * 
+   * @return string
+   *   The translated field name.
+   */
   public function translateField($field) {
     return $field;
   }
@@ -186,7 +198,13 @@ class Query extends QueryBase implements QueryInterface {
     $bool = [];
     foreach ($condition->conditions() as $subcondition) {
       $operator = $subcondition['operator'] ?? '=';
-      $field = $this->translateField($subcondition['field']);
+
+      if (is_string($subcondition['field'])) {
+        $field = $this->translateField($subcondition['field']);
+      }
+      else {
+        $field = $subcondition['field'];
+      }
       $value = $subcondition['value'];
 
       if (is_object($field) && $conjunction == "AND") {
@@ -345,7 +363,7 @@ class Query extends QueryBase implements QueryInterface {
     $conditions = &$this->condition->conditions();
     foreach ($this->condition->conditions() as $i => $subcondition) {
       if ($subcondition['field'] == $field) {
-        unset ($conditions[$i]);
+        unset($conditions[$i]);
       }
     }
   }
